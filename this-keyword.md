@@ -27,6 +27,7 @@ function Call(){
 const Arrow = ()=>{
     console.log(this) // 
 };
+// Arrow function has no own this , It takes 'this' from lexical(parent) scope .
 // window / undefined (not own this, inherit parent function) 
 ```
 
@@ -48,22 +49,26 @@ const obj = {
 
 obj.Get() // 20;
 obj.Get2() // undefined
+// Arrow function does not bind 'this' to object , It inherits 'this'
   
 ```
 
 
-## Evnt handler
+## Event handler
 
 ```js 
 Button.addEventListener("click",function()=>{
     console.log(this)  // button Element
 })
 
+// Normal function --> browser binds 'this' to element 
+
+
 Button.addEventListener("click",()=>{
     console.log(this)  // window object
 })
 
-
+// arrow function  ---> inherits 'this' from outer scope (window)
 ```
 
 ## Constructor Function 
@@ -85,6 +90,9 @@ console.log(u1.name) // Aman
 ## Explicit Binding
 
 ```js
+
+// call/apply/bind are used to explicitly control `this`.
+
 const User = {
     name:"Aman",
     Age:26,
@@ -108,6 +116,10 @@ fn("Delhi",'kumar');
 // bind this ko User ke sath bind karo or ek new function return karta hai 
 // output ----> Aman Kumar Your age is  26 from Delhi
 
+
+// call → arguments separately
+// apply → arguments in array
+// bind → returns new function with bound `this`
 
 ```
 
@@ -134,3 +146,25 @@ object.say(); // undefined
 
 // say function object ne call liya but phele sync code run hua or settimeout memory mein register ho gya sync code mein ke bad event loop ne esko callback queues se utha or call stack execute ke liye diya or es time standalone kyuki callbackmke sath koi bind nhi hai object kaa
  ```
+
+ 
+ ## Common Mistakes
+
+- Losing `this` when passing method as callback
+- Using arrow function as object method
+- Destructuring method and losing context
+
+```js
+const obj = {
+  name: "JS",
+  say() {
+    console.log(this.name)
+  }
+}
+
+const fn = obj.say
+fn() // undefined ❌
+
+
+// method → standalone बन गया → this lost
+```
