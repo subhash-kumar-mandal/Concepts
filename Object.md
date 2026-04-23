@@ -63,7 +63,7 @@ cat.start()  // cat    ( start method inherit kiya gya hai  obj (parent) se )
 #
 
 -     4. Class ( Modern syntax ) 
-internally: constructor function ही है
+internally: constructor function 
 
 
 ```js
@@ -221,15 +221,293 @@ const vehicle_2 = new Vehicle("Car","four wheeler ")
 // 2. memory efficient 
 // 3. supports inhertance 
 
-
-
-
-
-
-
-
 ```
 
 
 
+# Destructuring 
 
+```js
+const user ={
+    name:"aman",
+    active:false,
+    age:20,
+    city:'delhi'
+} ;
+
+
+const {name,age} = user
+// output  aman 20 
+```
+
+
+# 
+
+# Rest Operator (collect)
+-      When used in a function's parameter list, it catches any extra arguments passed to the function and packs them neatly into an array
+```js
+
+function abc(a,...b){
+    return b;
+};
+
+console.log(abc(1,2,3,4,5,5))// [1,2,3,4,5,5];
+
+
+
+
+syntax Error 
+
+function  Wrong1(...one,...wrong){}  ❌
+function  Wrong2(...one,a,b){}   ❌
+function Wrong3(...restParams,){} ❌
+function Wrong4(...rest=10){}    ❌
+
+
+// 1. Rest parameter must be last formal parameter
+// 2. Rest parameter may not have a default initializer
+
+
+```
+#
+
+# Spread Operator (Expand)
+-      The spread (...) syntax allows an iterable, such as an array or string, to be expanded in places where zero or more arguments (for function calls) or elements (for array literals) are expected
+```js
+ const array = [1,2,3,4,5];
+
+ const copy_array = [...array] // [1,2,3,4,5]
+
+
+
+ const object ={
+    name:"aman",
+    class:"8th"
+ };
+
+ const copy_student = {...object};
+ //{
+ //   name:"aman",
+ //   class:"8th"
+ // }
+
+
+
+ const a ={x:10};
+ const b= {y:12};
+
+ const Copy = {...a,...b};
+ // { a:10,b:12}
+
+```
+
+# Tricky Part
+
+```js
+// Destructuring Deflault value;
+// only undefined par run
+const {x=10} = {};
+
+
+
+// Rename 
+
+const {a:value} = {a:5};
+console.log(a)// undefined;
+console.log(value) // 5
+
+
+
+// Nested Destructuring 
+const {a:{b}} = {a:{b:10}};
+console.log(b) // 10
+
+
+//  Lost this context
+
+let object = {
+    name:"js",
+    say(){
+        console.log(this.name);
+    }
+};
+
+
+const {say} = object;
+say()// undefined
+
+
+
+
+
+
+//  Spread Big trap shallow copy
+
+const obj1=  {
+    a:10,
+    b:{c:100}
+};
+
+const obj2 = {...obj2};
+obj2.b.c =500;
+
+console.log(obj1.b.c)// 500
+```
+
+
+
+#
+# Object Propety Internals 
+
+-      Every Property have four hidden info
+    
+      1. value --> The actual data stored in the property.
+      2. writable -->  If true, the property's value can be changed; if false, it is read-only
+      3. enumerable    -> If true, the property appears during loops  and in Object.keys() else not appears.
+      4. configurable  ->  If true the property can be delete and  else false can be  not delete .
+
+
+```js
+const Car ={
+    name:"toyota",
+    modal:"S1",
+    
+};
+
+
+console.log(Object.getOwnPropertyDescriptors(Car))
+// see the hidden Info any keys
+
+// {
+//   name: {
+//  value: 'toyota',
+//  writable: true,
+//  enumerable: true,
+//  configurable: true 
+// },
+
+//   modal: {
+//  value: 'S1',
+//  writable: true,
+//  enumerable: true,
+//  configurable: true }
+// }
+
+
+// Custom property set 
+
+Object.defineProperty(Car,'name',{
+    value:"toyota 2.0", // set the value new 
+    writable:false  // not change the value kabi bad mein
+});
+
+
+Car.name = 'hello' // ❌ yaha ab ye kaam nhi karega  kyuki writable :false hai
+console.log(Car.name) // toyota 2.0
+
+
+// hide any loop and console.log();
+
+Object.defineProperty(Car,'modal',{
+    enumerable:false  // false value hide the any loop and console
+});
+
+
+
+console.log(Car) // {name:"toyota 2.0"}
+
+
+Object.defineProperty(Car,"secret",{
+    value:"hidden",
+    enumerable:false;
+})
+
+
+
+
+
+
+for(let key in Car){
+    console.log(key)
+}
+
+// loop only print name
+
+console.log(Object.keys(Car)) // ["name"]
+console.log(Car.secret) // hidden
+
+
+
+
+//  Use Case:
+ 1. Hidden Proertys (Security/ clean data)
+ 2. read only config
+ 3. library / Framework
+ 4. Controlled APIs
+ 5. Performance + clean loops
+
+```
+# 
+# Shallow , Deep , Structured Clone
+
+-     Shallow Copy
+      1. Independent copy the top level (like nested Object or array pass the reference)
+      2. Circuler Refs  N/A
+      3. map/set/Dates --> Shared reference
+
+
+
+
+-     Deep Copy
+      1. Copy the deep copy (safe Nested object and array)
+      2. Loss the propertys function , undefined , data---> String  
+      3. Circuler flow throw error
+      4. map/set/Dates --> converts to string / empty   
+
+
+-     Structured Clone
+      1. Fully Indepenedent
+      2. Nested fully clone
+      3. Ciruler flow  ---> Handled Corrently
+      4. function --- > throw error      
+
+
+```js
+
+// Shallow copy trap
+
+const obj = {
+    a:1,
+    b:{c:2}
+};
+
+const obj2 = {...obj}
+obj2.b.c = 100;
+console.log(obj.b.c) // 100
+
+// b --> reference copy hua
+// nested object share
+
+
+//  Deep clone
+
+const obj = {
+    a:undefined,
+    fn:()=>{},
+    data:new Date()
+};
+
+console.log(JSON.stringify(obj)) // {"data":"2026-04-23T08:10:28.055Z"}
+
+
+
+// StructuredClone
+const obj = {
+    fn:()=>{}
+};
+
+
+console.log(structuredClone(obj))
+// DOMException [DataCloneError]: ()=>{} could not be cloned.
+
+```
